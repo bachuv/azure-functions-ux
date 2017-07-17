@@ -266,10 +266,6 @@ export class FunctionDevComponent implements OnChanges, OnDestroy {
                 editorContainerWidth - 2,
                 editorContainerHeight - 2
             );
-
-            this.codeEditor.onContentChanged.subscribe(n=> {
-                this.codeEditor.setCompletionProvider();
-            }) 
         }
 
         if (this.rightContainer) {
