@@ -134,34 +134,31 @@ export class MonacoEditorDirective {
             return;
         }
 
-        try{
-            monaco.languages.registerCompletionItemProvider('csharp', {
-                triggerCharacters: ["."],
-                provideCompletionItems: function(model, position) {
-                    return [
-                        {
-                            label: '"lodash"',
-                            kind: monaco.languages.CompletionItemKind.Function,
-                            documentation: "The Lodash library exported as Node.js modules.",
-                            insertText: '"lodash": "*"'
-                        },
-                        {
-                            label: '"express"',
-                            kind: monaco.languages.CompletionItemKind.Interface,
-                            documentation: "Fast, unopinionated, minimalist web framework",
-                            insertText: '"express": "*"'
-                        },
-                        {
-                            label: '"mkdirp"',
-                            kind: monaco.languages.CompletionItemKind.Property,
-                            documentation: "Recursively mkdir, like <code>mkdir -p</code>",
-                            insertText: '"mkdirp": "*"' 
-                        }
-                    ]  
-                }
-            }) 
-        } catch (error) {
-        }
+        monaco.languages.registerCompletionItemProvider('csharp', {
+            triggerCharacters: ["."],
+            provideCompletionItems: function(model, position) {
+                return [
+                    {
+                        label: '"lodash"',
+                        kind: monaco.languages.CompletionItemKind.Function,
+                        documentation: "The Lodash library exported as Node.js modules.",
+                        insertText: '"lodash": "*"'
+                    },
+                    {
+                        label: '"express"',
+                        kind: monaco.languages.CompletionItemKind.Interface,
+                        documentation: "Fast, unopinionated, minimalist web framework",
+                        insertText: '"express": "*"'
+                    },
+                    {
+                        label: '"mkdirp"',
+                        kind: monaco.languages.CompletionItemKind.Property,
+                        documentation: "Recursively mkdir, like <code>mkdir -p</code>",
+                        insertText: '"mkdirp": "*"' 
+                    }
+                ]  
+            }
+        }) 
     }
 
 
