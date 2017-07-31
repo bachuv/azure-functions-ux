@@ -2,6 +2,7 @@ import { ConfigService } from './../services/config.service';
 import { Directive, EventEmitter, ElementRef, Input, Output } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/distinctUntilChanged';
+import { CompletionProvider } from '../../completion-provider/completion-provider';
 
 import { GlobalStateService } from '../services/global-state.service';
 import {FunctionApp} from '../function-app';
@@ -134,31 +135,7 @@ export class MonacoEditorDirective {
             return;
         }
 
-        monaco.languages.registerCompletionItemProvider('csharp', {
-            triggerCharacters: ["."],
-            provideCompletionItems: function(model, position) {
-                return [
-                    {
-                        label: '"lodash"',
-                        kind: monaco.languages.CompletionItemKind.Function,
-                        documentation: "The Lodash library exported as Node.js modules.",
-                        insertText: '"lodash": "*"'
-                    },
-                    {
-                        label: '"express"',
-                        kind: monaco.languages.CompletionItemKind.Interface,
-                        documentation: "Fast, unopinionated, minimalist web framework",
-                        insertText: '"express": "*"'
-                    },
-                    {
-                        label: '"mkdirp"',
-                        kind: monaco.languages.CompletionItemKind.Property,
-                        documentation: "Recursively mkdir, like <code>mkdir -p</code>",
-                        insertText: '"mkdirp": "*"' 
-                    }
-                ]  
-            }
-        }) 
+        monaco.languages.registerCompletionItemProvider('csharp', new CompletionProvider());
     }
 
 
@@ -197,6 +174,10 @@ export class MonacoEditorDirective {
                     readOnly: that._disabled,
                     lineHeight: 17
                 });
+
+                if(that._editor.language = "csharp"){
+                    this.setCompletionProvider();
+                }
 
                 that._editor.onDidChangeModelContent(() => {
                     if (!that._silent) {

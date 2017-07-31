@@ -1,4 +1,4 @@
-export interface AutoCompleteResponse {
+export class AutoCompleteResponse {
     CompletionText: string;
     Description: string;
     DisplayText: string;
