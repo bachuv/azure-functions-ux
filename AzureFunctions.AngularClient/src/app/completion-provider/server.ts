@@ -18,94 +18,17 @@ export class DummyServer implements IServer {
     private _state: ServerState = ServerState.Stopped;
     private static _nextId = 1;
 
-    public constructor(){
-        this._requestQueue = new RequestQueueCollection(request => this._makeRequest(request));
-        this._start();
-    }
-
-    public isRunning(){
-        this._state = ServerState.Started;
-    }
-
-    private getState(){
-        return this._state;
-    }
-
-    private _setState(state: ServerState) {
-        if(typeof state !== 'undefined' && state !== this._state){
-            this._state = state;
-        }
-    }
-
-    public _start(){
-        this._state = ServerState.Starting;
-        this.onLineReceived.bind(this);
-    }
-    
     public makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
 
-        // if (this._getState() !== ServerState.Started) {
-        //     return Promise.reject<TResponse>('server has been stopped or not started');
-        // }
-
         let promise = new Promise<TResponse>((resolve, reject) => {
-
             if(command === "/autocomplete"){
                 resolve(this.getDummyData()); 
             }else if(command === "/updatebuffer"){
                 resolve(null);
             }
-            
-
-            //this._requestQueue.enqueue(request);
         });
 
-        // if (token) {
-        //     token.onCancellationRequested(() => {
-        //         this._requestQueue.cancelRequest(request);
-        //     });
-        // }
-
        return promise;      
-    }
-
-    private onLineReceived(line: string) {
-        let packet: WireProtocol.Packet;
-        
-        try {
-            packet = JSON.parse(line);
-        } catch (err){
-            return;
-        }
-
-        if (!packet.Type) {
-            return;
-        }
-
-        switch (packet.Type) {
-            case 'response':
-                this._handleResponsePacket(<WireProtocol.ResponsePacket>packet);
-                break;
-            default:
-                console.warn(`Unknown packet type: ${packet.Type}`);
-                break;
-        }
-    }
-
-    private _handleResponsePacket(packet: WireProtocol.ResponsePacket) {
-        const request = this._requestQueue.dequeue(packet.Command, packet.Request_seq);
-
-        if (!request) {
-            return;
-        }
-
-        if(packet.Success){
-            request.onSuccess(packet.Body);
-        } else {
-            request.onError(packet.Message || packet.Body);
-        }
-
-        this._requestQueue.drain();
     }
 
     private _makeRequest(request: Request) {
