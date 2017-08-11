@@ -2,7 +2,7 @@ import { MonacoEditorDirective } from '../shared/directives/monaco-editor.direct
 import { AutoCompleteRequest } from '../shared/models/auto-complete-request';
 import { AutoCompleteResponse } from '../shared/models/auto-complete-response';
 import { getSummaryText } from './documentation';
-import { IServer, DummyServer } from './server';
+import { IServer, LanguageServiceServer } from './server';
 
 type CompletionItem = monaco.languages.CompletionItem;
 type CompletionItemKind = monaco.languages.CompletionItemKind;
@@ -13,7 +13,7 @@ export class CompletionProvider{
     private _server: IServer;
 
     constructor() {
-        this._server = new DummyServer();
+        this._server = new LanguageServiceServer();
 
     }
 

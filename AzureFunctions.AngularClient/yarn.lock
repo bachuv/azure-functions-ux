@@ -2596,6 +2596,10 @@ jodid25519@^1.0.0:
   dependencies:
     jsbn "~0.1.0"
 
+jquery@3.2.1, jquery@>=1.6.4:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
+
 js-base64@^2.1.5, js-base64@^2.1.9:
   version "2.1.9"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.1.9.tgz#f0e80ae039a4bd654b5f281fc93f04a914a7fcce"
@@ -4192,9 +4196,23 @@ rx@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/rx/-/rx-4.1.0.tgz#a5f13ff79ef3b740fe30aa803fb09f98805d4782"
 
+rxjs-signalr@0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/rxjs-signalr/-/rxjs-signalr-0.0.14.tgz#9dfc37ae957b644d98c72a6af4080a8653f5448e"
+  dependencies:
+    jquery "3.2.1"
+    rxjs "^5.4.1"
+    signalr "2.2.2"
+
 rxjs@^5.0.1, rxjs@^5.1.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.3.0.tgz#d88ccbdd46af290cbdb97d5d8055e52453fabe2d"
+  dependencies:
+    symbol-observable "^1.0.1"
+
+rxjs@^5.4.1:
+  version "5.4.3"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.4.3.tgz#0758cddee6033d68e0fd53676f0f3596ce3d483f"
   dependencies:
     symbol-observable "^1.0.1"
 
@@ -4368,6 +4386,12 @@ shallow-clone@^0.1.2:
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
+
+signalr@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/signalr/-/signalr-2.2.2.tgz#ba07915eb5e08cfbc87765047ec6972694d008e2"
+  dependencies:
+    jquery ">=1.6.4"
 
 silent-error@^1.0.0:
   version "1.0.1"

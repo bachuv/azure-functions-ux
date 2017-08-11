@@ -2,7 +2,8 @@ import { RequestQueueCollection } from './request-queue';
 import { Request } from '../shared/models/request';
 import { WireProtocol } from '../shared/models/wire-protocol';
 import { AutoCompleteResponse } from '../shared/models/auto-complete-response';
-import { SignalRHub } from 'rxjs-signalr'
+import { jquery } from "jquery"
+import { SignalRHub } from 'rxjs-signalr';
 
 enum ServerState {
     Starting,
@@ -10,26 +11,51 @@ enum ServerState {
     Stopped
 }
 
+declare var jquery;
+
 export interface IServer {
     makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse>;
 }
 
 export class LanguageServiceServer implements IServer
 {
+    private nextId;
     private _hub : SignalRHub;
-    constructor() {
-        this._hub = new SignalRHub("ls", "http://localhost/correctendpoint");
+    private _requestQueue: RequestQueueCollection;
 
-        this._hub.on("eventname").subscribe(eventData => { 
-            // handle event...
+    constructor() {
+        this.nextId = 1;
+        this._hub = new SignalRHub("ls", "http://localhost:57377/");
+
+        this._hub.on("eventname").subscribe(eventData => {
+            let data : any = eventData;
+            let response = this._requestQueue.dequeue(data.type, data.clientID);
+            this._requestQueue.drain();
         });
+
+        this._hub.state$.subscribe(state => { 
+           //state changed
+        });
+
+        this._hub.start();
     }
 
      makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
-        // Perform logic and call this, returning a promise (use the request queue)
-        this._hub.send("hubactionname", "eventpayload");
+        let request: Request;
+        
+        let promise = new Promise<TResponse>((resolve, reject) => {
+            let langServiceRequest = JSON.stringify({"clientID" : this.nextId, "type" : command, "data" : data});
+            this._hub.send("LanguageServiceRequest", langServiceRequest); 
 
-        throw new Error("Method not implemented.");
+            request = {command, data, onSuccess: value => resolve(value), onError: err => reject(err)};
+            this._requestQueue.enqueue(request);
+        })
+
+        return promise;
+    }
+
+    public _makeRequest(){
+        return this.nextId++;
     }
 }
 
