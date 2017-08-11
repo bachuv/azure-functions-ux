@@ -2,6 +2,7 @@ import { RequestQueueCollection } from './request-queue';
 import { Request } from '../shared/models/request';
 import { WireProtocol } from '../shared/models/wire-protocol';
 import { AutoCompleteResponse } from '../shared/models/auto-complete-response';
+import { SignalRHub } from 'rxjs-signalr'
 
 enum ServerState {
     Starting,
@@ -11,6 +12,25 @@ enum ServerState {
 
 export interface IServer {
     makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse>;
+}
+
+export class LanguageServiceServer implements IServer
+{
+    private _hub : SignalRHub;
+    constructor() {
+        this._hub = new SignalRHub("ls", "http://localhost/correctendpoint");
+
+        this._hub.on("eventname").subscribe(eventData => { 
+            // handle event...
+        });
+    }
+
+     makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
+        // Perform logic and call this, returning a promise (use the request queue)
+        this._hub.send("hubactionname", "eventpayload");
+
+        throw new Error("Method not implemented.");
+    }
 }
 
 export class DummyServer implements IServer {
