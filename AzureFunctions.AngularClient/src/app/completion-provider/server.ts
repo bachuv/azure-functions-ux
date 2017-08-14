@@ -11,8 +11,6 @@ enum ServerState {
     Stopped
 }
 
-declare var jquery;
-
 export interface IServer {
     makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse>;
 }
@@ -36,7 +34,7 @@ export class LanguageServiceServer implements IServer
         this._hub.state$.subscribe(state => { 
            //state changed
         });
-
+  
         this._hub.start();
     }
 
