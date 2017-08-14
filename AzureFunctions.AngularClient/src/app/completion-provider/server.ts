@@ -23,9 +23,10 @@ export class LanguageServiceServer implements IServer
 
     constructor() {
         this.nextId = 1;
-        this._hub = new SignalRHub("ls", "http://localhost:57377/");
+        this._hub = new SignalRHub("LanguageServiceHub", "https://localhost/WebJobs.Script.LanguageService/ls");
+        this._requestQueue = new RequestQueueCollection(request => this._makeRequest());
 
-        this._hub.on("eventname").subscribe(eventData => {
+        this._hub.on("languageServiceEvent").subscribe(eventData => {
             let data : any = eventData;
             let response = this._requestQueue.dequeue(data.type, data.clientID);
             this._requestQueue.drain();
@@ -43,8 +44,7 @@ export class LanguageServiceServer implements IServer
         
         let promise = new Promise<TResponse>((resolve, reject) => {
             let langServiceRequest = JSON.stringify({"clientID" : this.nextId, "type" : command, "data" : data});
-            this._hub.send("LanguageServiceRequest", langServiceRequest); 
-
+            this._hub.send("LanguageServiceRequest", langServiceRequest);
             request = {command, data, onSuccess: value => resolve(value), onError: err => reject(err)};
             this._requestQueue.enqueue(request);
         })

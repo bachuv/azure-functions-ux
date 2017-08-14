@@ -14,7 +14,6 @@ export class CompletionProvider{
 
     constructor() {
         this._server = new LanguageServiceServer();
-
     }
 
     provideCompletionItems(model: any, position: any){
