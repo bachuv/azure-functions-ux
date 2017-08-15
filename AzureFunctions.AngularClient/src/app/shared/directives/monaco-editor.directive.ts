@@ -6,6 +6,7 @@ import { CompletionProvider } from '../../completion-provider/completion-provide
 
 import { GlobalStateService } from '../services/global-state.service';
 import {FunctionApp} from '../function-app';
+import { FunctionInfo } from "app/shared/models/function-info";
 
 declare var monaco;
 declare var require;
@@ -22,7 +23,8 @@ export class MonacoEditorDirective {
     private _disabled: boolean;
     private _editor: any;
     private _silent: boolean = false;
-    private _fileName: string;
+    public _fileName: string;
+    public _functionInfo: FunctionInfo;
     private _functionAppStream : Subject<FunctionApp>;
     private _functionApp : FunctionApp;
 
@@ -45,6 +47,10 @@ export class MonacoEditorDirective {
 
     @Input('functionAppInput') set functionAppInput(functionApp: FunctionApp){
         this._functionAppStream.next(functionApp);
+    }
+
+    @Input('functionInfo') set functionInfo(functionInfo: FunctionInfo){
+        this._functionInfo = functionInfo;
     }
 
     @Input('content') set content(str: string) {
@@ -135,7 +141,7 @@ export class MonacoEditorDirective {
             return;
         }
 
-        monaco.languages.registerCompletionItemProvider('csharp', new CompletionProvider());
+        monaco.languages.registerCompletionItemProvider('csharp', new CompletionProvider(this));
     }
 
 
@@ -175,7 +181,7 @@ export class MonacoEditorDirective {
                     lineHeight: 17
                 });
 
-                if(that._editor.language = "csharp"){
+                if(that._language === "csharp"){
                     this.setCompletionProvider();
                 }
 

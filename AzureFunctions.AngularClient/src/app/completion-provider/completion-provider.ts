@@ -11,20 +11,28 @@ const autoCompleteRequest = "/autocomplete";
 
 export class CompletionProvider{
     private _server: IServer;
+    private _editor: MonacoEditorDirective;
 
-    constructor() {
+    constructor(private monacoEditor: MonacoEditorDirective) {
         this._server = new LanguageServiceServer();
+        this._editor = monacoEditor;
     }
 
     provideCompletionItems(model: any, position: any){
-        let wordToComplete = '';
+        let wordToComplete: any;
         var textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
         if(textUntilPosition){
             wordToComplete = model.getWordUntilPosition(position);
         }
+        else{
+            return;
+        }
         
         let req: AutoCompleteRequest = new AutoCompleteRequest();
-        req.wordToComplete = wordToComplete;
+        req.fileName = this.monacoEditor._functionInfo.name + "\\" + this.monacoEditor._fileName;
+        req.line = position.lineNumber;
+        req.Column = position.column;
+        req.wordToComplete = wordToComplete.word;
         req.wantDocumentationForEveryCompletionResult = true;
         req.wantKind = true;
         req.wantReturnType = true;

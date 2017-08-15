@@ -24,11 +24,13 @@ export class LanguageServiceServer implements IServer
     constructor() {
         this.nextId = 1;
         this._hub = new SignalRHub("LanguageServiceHub", "https://localhost/WebJobs.Script.LanguageService/ls");
-        this._requestQueue = new RequestQueueCollection(request => this._makeRequest());
+        this._requestQueue = new RequestQueueCollection(request => { return this._makeRequest(request)});
 
         this._hub.on("languageServiceEvent").subscribe(eventData => {
             let data : any = eventData;
-            let response = this._requestQueue.dequeue(data.type, data.clientID);
+            let parsedData = JSON.parse(data);
+            let response = this._requestQueue.dequeue(parsedData.Type, parsedData.request_seq);
+            response.onSuccess(parsedData.Data);
             this._requestQueue.drain();
         });
 
@@ -39,21 +41,26 @@ export class LanguageServiceServer implements IServer
         this._hub.start();
     }
 
+    private getNextId(): number{
+        return this.nextId++;
+    }
      makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
         let request: Request;
-        
         let promise = new Promise<TResponse>((resolve, reject) => {
-            let langServiceRequest = JSON.stringify({"clientID" : this.nextId, "type" : command, "data" : data});
-            this._hub.send("LanguageServiceRequest", langServiceRequest);
-            request = {command, data, onSuccess: value => resolve(value), onError: err => reject(err)};
+            request = {command, data: data, clientId: 1, onSuccess: value => resolve(value), onError: err => reject(err)};
+            
             this._requestQueue.enqueue(request);
-        })
+        });
 
         return promise;
     }
 
-    public _makeRequest(){
-        return this.nextId++;
+    public _makeRequest(request) : number {
+        request.request_seq = this.getNextId();
+
+        this._hub.send("LanguageServiceRequest", JSON.stringify(request));
+
+        return request.request_seq;
     }
 }
 

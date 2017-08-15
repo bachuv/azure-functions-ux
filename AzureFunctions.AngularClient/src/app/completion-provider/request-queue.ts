@@ -40,7 +40,9 @@ class RequestQueue {
         const slots = this._maxSize - this._waiting.size;
 
         for (let i = 0; i < slots && this._pending.length > 0; i++) {
-            this._makeRequest(this._pending.shift());
+            let item = this._pending.shift();
+            let id = this._makeRequest(item);
+            this._waiting.set(id, item);
         }
     }
 
@@ -71,8 +73,10 @@ export class RequestQueueCollection {
     }
 
     public enqueue(request: Request) {
-        const queue = this.getQueue();
+        let queue = this.getQueue();
         queue.enqueue(request);
+
+        this.drain();
     }
 
     public dequeue(command: string, seq: number) {
@@ -91,6 +95,12 @@ export class RequestQueueCollection {
         }
 
         this._isProcessing = true;
+        
+        if (this._normalQueue.hasPending()) {
+            this._normalQueue.processPending();
+        }
+
+        this._isProcessing = false;
     }
 }
 
