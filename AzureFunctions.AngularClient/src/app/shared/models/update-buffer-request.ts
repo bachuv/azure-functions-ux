@@ -1,10 +1,10 @@
 import { LinePositionSpanTextChange } from "./line-position";
 
-export interface UpdateBufferRequest {
-    FileName: string;
-    Line?: number;
-    Column?: number;
-    Buffer?: string;
-    Changes?: LinePositionSpanTextChange[]; 
-    FromDisk?: boolean;
+export class UpdateBufferRequest {
+    fileName: string;
+    line?: number;
+    column?: number;
+    buffer?: string;
+    changes?: LinePositionSpanTextChange[]; 
+    fromDisk?: boolean;
 }

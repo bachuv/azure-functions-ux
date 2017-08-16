@@ -3,11 +3,13 @@ import { AutoCompleteRequest } from '../shared/models/auto-complete-request';
 import { AutoCompleteResponse } from '../shared/models/auto-complete-response';
 import { getSummaryText } from './documentation';
 import { IServer, LanguageServiceServer } from './server';
+import { UpdateBufferRequest } from "app/shared/models/update-buffer-request";
 
 type CompletionItem = monaco.languages.CompletionItem;
 type CompletionItemKind = monaco.languages.CompletionItemKind;
 
 const autoCompleteRequest = "/autocomplete";
+const updateBufferRequest = "/updateBuffer";
 
 export class CompletionProvider{
     private _server: IServer;
@@ -16,6 +18,23 @@ export class CompletionProvider{
     constructor(private monacoEditor: MonacoEditorDirective) {
         this._server = new LanguageServiceServer();
         this._editor = monacoEditor;
+        this._editor.onContentChanged
+            .debounceTime(300)
+            .subscribe(content => {
+                this.updateBuffer(content);
+            })
+    }
+
+    getFileName() {
+        return this.monacoEditor._functionInfo.name + "\\" + this.monacoEditor._fileName;
+    }
+
+    updateBuffer(content : string){
+        let req: UpdateBufferRequest = new UpdateBufferRequest();
+        req.buffer = content;
+        req.fileName = this.getFileName();
+
+        return this._server.makeRequest<Response>(updateBufferRequest, req);
     }
 
     provideCompletionItems(model: any, position: any){
@@ -29,7 +48,7 @@ export class CompletionProvider{
         }
         
         let req: AutoCompleteRequest = new AutoCompleteRequest();
-        req.fileName = this.monacoEditor._functionInfo.name + "\\" + this.monacoEditor._fileName;
+        req.fileName = this.getFileName();
         req.line = position.lineNumber;
         req.Column = position.column;
         req.wordToComplete = wordToComplete.word;

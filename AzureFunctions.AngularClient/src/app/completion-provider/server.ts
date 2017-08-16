@@ -22,16 +22,22 @@ export class LanguageServiceServer implements IServer
     private _requestQueue: RequestQueueCollection;
 
     constructor() {
-        this.nextId = 1;
+        this.nextId = 200;
         this._hub = new SignalRHub("LanguageServiceHub", "https://localhost/WebJobs.Script.LanguageService/ls");
         this._requestQueue = new RequestQueueCollection(request => { return this._makeRequest(request)});
 
         this._hub.on("languageServiceEvent").subscribe(eventData => {
-            let data : any = eventData;
-            let parsedData = JSON.parse(data);
-            let response = this._requestQueue.dequeue(parsedData.Type, parsedData.request_seq);
-            response.onSuccess(parsedData.Data);
-            this._requestQueue.drain();
+            try {
+                let data : any = eventData;
+                let parsedData = JSON.parse(data);
+                let response = this._requestQueue.dequeue(parsedData.Type, parsedData.Request_seq);
+                let body  = parsedData.Body;
+                response.onSuccess(body);
+                this._requestQueue.drain();
+            }
+            catch (e) {
+
+            }
         });
 
         this._hub.state$.subscribe(state => { 
@@ -44,10 +50,11 @@ export class LanguageServiceServer implements IServer
     private getNextId(): number{
         return this.nextId++;
     }
-     makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
+    
+    makeRequest<TResponse>(command: string, data?: any, token?: monaco.CancellationToken): Promise<TResponse> {
         let request: Request;
         let promise = new Promise<TResponse>((resolve, reject) => {
-            request = {command, data: data, clientId: 1, onSuccess: value => resolve(value), onError: err => reject(err)};
+            request = {command, arguments: data, clientId: 1, onSuccess: value => resolve(value), onError: err => reject(err)};
             
             this._requestQueue.enqueue(request);
         });
@@ -56,11 +63,11 @@ export class LanguageServiceServer implements IServer
     }
 
     public _makeRequest(request) : number {
-        request.request_seq = this.getNextId();
+        request.seq = this.getNextId();
 
         this._hub.send("LanguageServiceRequest", JSON.stringify(request));
 
-        return request.request_seq;
+        return request.seq;
     }
 }
 
